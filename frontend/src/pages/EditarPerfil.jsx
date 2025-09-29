@@ -1,19 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/ui/Navbar";
-import { useUser } from "@/context/UserContext";
 import api from "@/api/axios";
+import { useUser } from "@/context/UserContext";
 
 export default function EditarPerfil() {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    age: user?.age || "",
-    bio: user?.bio || "",
-    profileImage: user?.profileImage || "",
+    name: "",
+    email: "",
+    age: "",
+    bio: "",
+    profileImage: "",
   });
+
+  const [loading, setLoading] = useState(false);
+
+  // Rellenar formulario con datos del usuario actual
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.name || "",
+        email: user.email || "",
+        age: user.age || "",
+        bio: user.bio || "",
+        profileImage: user.profileImage || "",
+      });
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,14 +37,17 @@ export default function EditarPerfil() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const { data } = await api.put(`/users/${user._id}`, form);
-      setUser(data);
+      setUser(data); // actualizar el contexto global
       localStorage.setItem("user", JSON.stringify(data));
       navigate("/perfil");
     } catch (err) {
-      console.error("Error al actualizar perfil:", err);
-      alert("No se pudo actualizar el perfil");
+      console.error("❌ Error al actualizar perfil:", err);
+      alert("Hubo un error al guardar los cambios.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,14 +55,19 @@ export default function EditarPerfil() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Navbar />
 
-      <div className="max-w-2xl mx-auto mt-10 p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold text-pink-600 dark:text-pink-400 mb-6">
+      <div className="flex-1 max-w-2xl mx-auto p-6">
+        <h1 className="text-3xl font-bold text-center text-pink-600 dark:text-pink-400 mb-8">
           Editar Perfil
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="card p-6 space-y-4 bg-white dark:bg-gray-800 shadow-lg"
+        >
           <div>
-            <label className="block mb-1 font-medium">Nombre</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Nombre
+            </label>
             <input
               type="text"
               name="name"
@@ -52,18 +76,25 @@ export default function EditarPerfil() {
               className="input"
             />
           </div>
+
           <div>
-            <label className="block mb-1 font-medium">Email</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Email
+            </label>
             <input
               type="email"
               name="email"
               value={form.email}
               onChange={handleChange}
               className="input"
+              disabled
             />
           </div>
+
           <div>
-            <label className="block mb-1 font-medium">Edad</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Edad
+            </label>
             <input
               type="number"
               name="age"
@@ -72,32 +103,49 @@ export default function EditarPerfil() {
               className="input"
             />
           </div>
+
           <div>
-            <label className="block mb-1 font-medium">Bio</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Biografía
+            </label>
             <textarea
               name="bio"
               value={form.bio}
               onChange={handleChange}
-              className="input"
-              rows="3"
+              className="input h-24"
             />
           </div>
+
           <div>
-            <label className="block mb-1 font-medium">Foto de perfil (URL)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Foto de Perfil (URL)
+            </label>
             <input
               type="text"
               name="profileImage"
               value={form.profileImage}
               onChange={handleChange}
               className="input"
+              placeholder="https://..."
             />
           </div>
 
+          {form.profileImage && (
+            <div className="flex justify-center">
+              <img
+                src={form.profileImage}
+                alt="Preview"
+                className="w-28 h-28 rounded-full object-cover border-4 border-pink-500"
+              />
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full py-3 rounded-lg bg-pink-600 text-white font-semibold hover:bg-pink-700 transition"
+            disabled={loading}
+            className="btn-primary w-full"
           >
-            Guardar cambios
+            {loading ? "Guardando..." : "Guardar cambios"}
           </button>
         </form>
       </div>

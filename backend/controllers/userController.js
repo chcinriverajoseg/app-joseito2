@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+/*import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
@@ -141,3 +141,39 @@ export const registerUser = (req, res) => {
   // Aquí iría la lógica real de registro
   res.json({ message: "Usuario registrado", email });
 };*/
+import User from "../models/User.js";
+
+// Obtener perfil
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+    res.json(user);
+  } catch (err) {
+    console.error("❌ Error perfil:", err);
+    res.status(500).json({ message: "Error obteniendo perfil" });
+  }
+};
+
+// Actualizar perfil
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (req.user.id !== id) return res.status(403).json({ message: "No autorizado" });
+
+    const updates = {
+      name: req.body.name,
+      age: req.body.age,
+      bio: req.body.bio,
+      profileImage: req.body.profileImage,
+    };
+
+    const user = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true }).select("-password");
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    res.json(user);
+  } catch (err) {
+    console.error("❌ Error update:", err);
+    res.status(500).json({ message: "Error actualizando perfil" });
+  }
+};

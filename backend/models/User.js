@@ -1,42 +1,4 @@
-/*// backend/models/User.js
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
-
-const { Schema } = mongoose;
-
-const UserSchema = new Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true }, // hash
-    avatar: { type: String },
-    interests: [{ type: String }],
-  },
-  { timestamps: true }
-);
-
-// Hash antes de guardar si cambió el password
-UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
-
-// Método para comparar password plano vs hash
-UserSchema.methods.comparePassword = function (plain) {
-  return bcrypt.compare(plain, this.password);
-};
-
-// Para no exponer el hash
-UserSchema.methods.toJSONSafe = function () {
-  const obj = this.toObject();
-  delete obj.password;
-  return obj;
-};
-
-export default mongoose.model("User", UserSchema);
-*/
+/*
 // backend/models/User.js
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
@@ -124,4 +86,19 @@ UserSchema.methods.toJSONSafe = function () {
   return obj;
 };
 
-export default mongoose.model("User", UserSchema);
+export default mongoose.model("User", UserSchema);*/
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true, minlength: 6 },
+    age: { type: Number, min: 18, max: 100 },
+    bio: { type: String, trim: true, maxlength: 300 },
+    profileImage: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model("User", userSchema);
