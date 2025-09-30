@@ -1,4 +1,4 @@
-### 1️⃣ Registro usuario A
+### 1️⃣ Registro usuario A (Joseito)
 POST http://127.0.0.1:4000/api/users/register
 Content-Type: application/json
 
@@ -8,7 +8,7 @@ Content-Type: application/json
   "password": "123456"
 }
 
-### 2️⃣ Registro usuario B
+### 2️⃣ Registro usuario B (Maria)
 POST http://127.0.0.1:4000/api/users/register
 Content-Type: application/json
 
@@ -42,7 +42,7 @@ Content-Type: application/json
 POST http://127.0.0.1:4000/api/users/{{loginB.response.body.user._id}}/like
 Authorization: Bearer {{loginA.response.body.token}}
 
-### 6️⃣ Usuario B da like a A (Match 🔥)
+### 6️⃣ Usuario B da like a A (match 🔥)
 POST http://127.0.0.1:4000/api/users/{{loginA.response.body.user._id}}/like
 Authorization: Bearer {{loginB.response.body.token}}
 
@@ -53,8 +53,8 @@ Authorization: Bearer {{loginA.response.body.token}}
 ### 8️⃣ Crear chat entre A y B
 # @name chatAB
 POST http://127.0.0.1:4000/api/chats
-Authorization: Bearer {{loginA.response.body.token}}
 Content-Type: application/json
+Authorization: Bearer {{loginA.response.body.token}}
 
 {
   "userId": "{{loginB.response.body.user._id}}"
@@ -66,8 +66,8 @@ Authorization: Bearer {{loginA.response.body.token}}
 
 ### 🔟 Enviar mensaje en el chat
 POST http://127.0.0.1:4000/api/chats/{{chatAB.response.body._id}}/messages
-Authorization: Bearer {{loginA.response.body.token}}
 Content-Type: application/json
+Authorization: Bearer {{loginA.response.body.token}}
 
 {
   "text": "Hola María! 🚀"

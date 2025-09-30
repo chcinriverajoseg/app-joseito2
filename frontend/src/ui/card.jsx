@@ -1,11 +1,12 @@
 import React from "react";
 
-const Card = ({ children, className = "" }) => {
+export default function Card({ children, className = "" }) {
   return (
-    <div className={`bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md ${className}`}>
+    <div
+      className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 
+      hover:shadow-xl transition ${className}`}
+    >
       {children}
     </div>
   );
-};
-
-export default Card;
+}

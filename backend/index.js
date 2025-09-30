@@ -1,15 +1,3 @@
-/*import http from "http";
-import dotenv from "dotenv";
-import app from "./app.js";
-
-dotenv.config();
-
-const PORT = process.env.PORT || 4000;
-const server = http.createServer(app);
-
-server.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`);
-});*/
 
 
 import express from "express";
@@ -20,6 +8,7 @@ import mongoose from "mongoose";
 
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 
 dotenv.config();
 
@@ -29,10 +18,11 @@ app.use(morgan("dev"));
 app.use(express.json());
 
 // Rutas
-app.use("/api", userRoutes);
-app.use("/api", authRoutes);
+app.use("/api", authRoutes);   // primero auth
+app.use("/api", userRoutes);   // luego usuarios
+app.use("/api", chatRoutes);   // luego chats
 
-// MongoDB
+// Conexión a MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB conectado"))

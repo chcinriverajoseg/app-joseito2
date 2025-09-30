@@ -1,74 +1,73 @@
-/*import React, { useEffect, useState } from "react";
+// src/pages/ChatPage.jsx
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "@/api/axios";
 import Navbar from "@/ui/Navbar";
-import { MessageSquare } from "lucide-react";
+import api from "@/api/axios";
 
 export default function ChatPage() {
   const [chats, setChats] = useState([]);
-  const [loading, setLoading] = useState(true);
 
+  // 📌 Cargar mis chats
   useEffect(() => {
     const fetchChats = async () => {
       try {
         const { data } = await api.get("/chats");
-        setChats(data || []);
+        setChats(data);
       } catch (err) {
         console.error("Error cargando chats:", err);
-      } finally {
-        setLoading(false);
       }
     };
     fetchChats();
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 to-purple-100 dark:from-gray-900 dark:to-gray-800">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto flex-1 p-6 fade-in">
-        <h1 className="text-3xl font-bold text-center text-pink-600 dark:text-pink-400 mb-8">
-          Mensajes
+      <div className="flex-1 max-w-3xl mx-auto w-full p-6">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+          💬 Mis Chats
         </h1>
 
-        {loading ? (
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="h-14 w-full bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"
-              />
-            ))}
-          </div>
-        ) : chats.length === 0 ? (
-          <p className="text-center text-gray-600 dark:text-gray-400">
-            Aún no tienes chats.
+        {chats.length === 0 ? (
+          <p className="text-center text-gray-500 dark:text-gray-400">
+            Aún no tienes chats. ¡Haz match y empieza a conversar! 🚀
           </p>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
             {chats.map((chat) => {
-              const peer = chat.peer || {};
+              // Tomamos el otro usuario (distinto a mí)
+              const other = chat.users?.find(
+                (u) => u._id !== JSON.parse(localStorage.getItem("user"))?.user?._id
+              );
+
               return (
-                <Link
+                <div
                   key={chat._id}
-                  to={`/chat/${chat._id}`}
-                  className="card flex items-center gap-4 hover:shadow-lg transition"
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-4 flex items-center justify-between hover:shadow-lg transition"
                 >
-                  <img
-                    src={peer.avatar || "https://i.pravatar.cc/100"}
-                    alt={peer.name || "Usuario"}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-pink-500"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                      {peer.name || "Usuario"}
-                    </h2>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                      {chat.lastMessage?.text || "Sin mensajes aún"}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={other?.avatar || "https://i.pravatar.cc/100"}
+                      alt={other?.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-pink-400"
+                    />
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                        {other?.name || "Usuario"}
+                      </h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {other?.email}
+                      </p>
+                    </div>
                   </div>
-                  <MessageSquare className="text-pink-500 shrink-0" />
-                </Link>
+                  <Link
+                    to={`/chat/${chat._id}`}
+                    className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition"
+                  >
+                    Abrir chat
+                  </Link>
+                </div>
               );
             })}
           </div>
@@ -77,84 +76,3 @@ export default function ChatPage() {
     </div>
   );
 }
-  */
- import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import Navbar from "@/ui/Navbar";
-import api from "@/api/axios";
-import { MessageSquare } from "lucide-react";
-
-export default function ChatPage() {
-  const [chats, setChats] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const { data } = await api.get("/chats");
-        setChats(data || []);
-      } catch (err) {
-        console.error("Error cargando chats:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchChats();
-  }, []);
-
-  return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <Navbar />
-
-      <div className="flex-1 max-w-3xl mx-auto p-6">
-        <h1 className="text-3xl font-bold text-center text-pink-600 dark:text-pink-400 mb-8">
-          Mensajes
-        </h1>
-
-        {loading ? (
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="h-14 w-full bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"
-              />
-            ))}
-          </div>
-        ) : chats.length === 0 ? (
-          <p className="text-center text-gray-600 dark:text-gray-400">
-            No tienes chats aún. ¡Haz match para empezar a chatear!
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {chats.map((chat) => {
-              const peer = chat.peer || {};
-              return (
-                <Link
-                  key={chat._id}
-                  to={`/chat/${chat._id}`}
-                  className="card flex items-center gap-4 p-4 hover:shadow-lg transition"
-                >
-                  <img
-                    src={peer.avatar || "https://i.pravatar.cc/100"}
-                    alt={peer.name || "Usuario"}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-pink-500"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                      {peer.name || "Usuario"}
-                    </h2>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                      {chat.lastMessage?.text || "Sin mensajes aún"}
-                    </p>
-                  </div>
-                  <MessageSquare className="text-pink-500 shrink-0" />
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-

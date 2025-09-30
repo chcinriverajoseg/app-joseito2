@@ -1,22 +1,12 @@
-// backend/routes/chatRoutes.js
 import { Router } from "express";
 import auth from "../middleware/auth.js";
-import {
-  listChats,
-  createOrGetChatWith,
-  getChat,
-  listMessages,
-  sendMessage,
-} from "../controllers/chatController.js";
+import { createChat, getChats, sendMessage, getMessages } from "../controllers/chatController.js";
 
 const router = Router();
 
-router.use(auth);
-
-router.get("/chats", listChats);
-router.post("/chats/with/:userId", createOrGetChatWith);
-router.get("/chats/:chatId", getChat);
-router.get("/chats/:chatId/messages", listMessages);
-router.post("/chats/:chatId/messages", sendMessage);
+router.post("/chats", auth, createChat);
+router.get("/chats", auth, getChats);
+router.post("/chats/:chatId/messages", auth, sendMessage);
+router.get("/chats/:chatId/messages", auth, getMessages);
 
 export default router;

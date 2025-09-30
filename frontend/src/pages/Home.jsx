@@ -42,49 +42,51 @@ export default function Home() {
     </section>
   );
 }*/
+// src/pages/Home.jsx
 import React from "react";
-import { Link } from "react-router-dom";
 import Navbar from "@/ui/Navbar";
+import { useUser } from "@/context/UserContext";
 
 export default function Home() {
+  const { user } = useUser();
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Navbar />
+      <div className="max-w-4xl mx-auto px-6 py-16 text-center">
+        {/* Avatar grande si está logueado */}
+        {user && (
+          <img
+            src={user.avatar || "https://i.pravatar.cc/200"}
+            alt={user.name}
+            className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-pink-500 shadow-lg"
+          />
+        )}
 
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-12">
-        {/* Imagen central */}
-        <img
-          src="https://illustrations.popsy.co/violet/love-connection.svg"
-          alt="Encuentra tu match"
-          className="w-72 h-72 mb-8 drop-shadow-lg"
-        />
-
-        {/* Título y descripción */}
-        <h1 className="text-4xl font-extrabold text-pink-600 dark:text-pink-400 mb-4">
-          Bienvenido a ❤️ Joseito
+        <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white mb-4">
+          ❤️ Bienvenido a <span className="text-pink-600">App Joseito</span>
         </h1>
-        <p className="text-lg text-gray-700 dark:text-gray-300 max-w-xl mb-8">
-          Encuentra tu match perfecto, conéctate con personas increíbles y
-          comienza nuevas conversaciones hoy mismo.
+
+        <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+          Conecta, haz matches y comienza nuevas conversaciones.  
+          ¡El lugar perfecto para conocer gente nueva!
         </p>
 
-        {/* Botones */}
-        <div className="flex gap-4">
-          <Link
-            to="/register"
-            className="px-6 py-3 rounded-lg bg-pink-600 text-white font-semibold shadow hover:bg-pink-700 transition"
+        <div className="flex justify-center gap-4">
+          <a
+            href="/explore"
+            className="px-6 py-3 rounded-xl bg-pink-600 text-white font-semibold hover:bg-pink-700 shadow-md"
           >
-            Comenzar ahora
-          </Link>
-          <Link
-            to="/login"
-            className="px-6 py-3 rounded-lg bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition"
+            🚀 Explorar
+          </a>
+          <a
+            href="/matches"
+            className="px-6 py-3 rounded-xl bg-purple-600 text-white font-semibold hover:bg-purple-700 shadow-md"
           >
-            Ya tengo cuenta
-          </Link>
+            💖 Matches
+          </a>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
-

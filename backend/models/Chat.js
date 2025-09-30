@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
-const { Schema, Types } = mongoose;
 
-const ChatSchema = new Schema(
+const chatSchema = new mongoose.Schema(
   {
-    members: [{ type: Types.ObjectId, ref: "User", required: true }], // 2 miembros
-    lastMessage: { type: Types.ObjectId, ref: "Message" },
+    users: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+    ],
   },
   { timestamps: true }
 );
 
-// Genera un campo virtual "peer" para el miembro distinto al usuario actual (se pobla por controlador)
-ChatSchema.index({ members: 1 }); // índice para búsquedas por miembro
-
-export default mongoose.model("Chat", ChatSchema);
+export default mongoose.model("Chat", chatSchema);
