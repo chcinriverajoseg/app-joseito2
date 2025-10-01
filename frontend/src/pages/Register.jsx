@@ -53,7 +53,10 @@ const Register = () => {
 };
 
 export default Register;*/
-import React, { useState } from "react";
+
+
+
+/*import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import Card from "@/ui/Card";
@@ -122,4 +125,70 @@ export default function Register() {
       </div>
     </div>
   );
+}*/
+
+// src/pages/Register.jsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "@/api/axios";
+
+export default function Register() {
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/users/register", form);
+      navigate("/login");
+    } catch (err) {
+      setError(err.response?.data?.message || "Error en registro");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-200 dark:from-gray-900 dark:to-gray-800">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg w-full max-w-md"
+      >
+        <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+          Crear cuenta
+        </h1>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <input
+          type="text"
+          name="name"
+          placeholder="Nombre"
+          value={form.name}
+          onChange={handleChange}
+          className="w-full mb-3 px-4 py-2 rounded-lg border focus:ring focus:outline-none"
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Correo"
+          value={form.email}
+          onChange={handleChange}
+          className="w-full mb-3 px-4 py-2 rounded-lg border focus:ring focus:outline-none"
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Contraseña"
+          value={form.password}
+          onChange={handleChange}
+          className="w-full mb-3 px-4 py-2 rounded-lg border focus:ring focus:outline-none"
+        />
+        <button className="w-full bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700">
+          Registrarse
+        </button>
+      </form>
+    </div>
+  );
 }
+

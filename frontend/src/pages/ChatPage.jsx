@@ -1,63 +1,64 @@
 // src/pages/ChatPage.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "@/ui/Navbar";
 import api from "@/api/axios";
+import Navbar from "@/ui/Navbar";
 
 export default function ChatPage() {
   const [chats, setChats] = useState([]);
 
-  // 📌 Cargar mis chats
+  const fetchChats = async () => {
+    try {
+      const { data } = await api.get("/chats");
+      setChats(data);
+    } catch (err) {
+      console.error("❌ Error cargando chats:", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const { data } = await api.get("/chats");
-        setChats(data);
-      } catch (err) {
-        console.error("Error cargando chats:", err);
-      }
-    };
     fetchChats();
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 to-purple-100 dark:from-gray-900 dark:to-gray-800">
       <Navbar />
-
       <div className="flex-1 max-w-3xl mx-auto w-full p-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-          💬 Mis Chats
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+          💬 Tus chats
         </h1>
 
         {chats.length === 0 ? (
-          <p className="text-center text-gray-500 dark:text-gray-400">
-            Aún no tienes chats. ¡Haz match y empieza a conversar! 🚀
+          <p className="text-gray-600 dark:text-gray-400 text-center">
+            No tienes chats todavía. Dale like a alguien para empezar 🚀
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-4">
             {chats.map((chat) => {
-              // Tomamos el otro usuario (distinto a mí)
-              const other = chat.users?.find(
-                (u) => u._id !== JSON.parse(localStorage.getItem("user"))?.user?._id
+              // Usuario con el que estoy chateando (el otro, no yo)
+              const localUser = JSON.parse(localStorage.getItem("user"))?.user;
+              const otherUser = chat.users.find(
+                (u) => u._id !== localUser?._id
               );
 
               return (
                 <div
                   key={chat._id}
-                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-4 flex items-center justify-between hover:shadow-lg transition"
+                  className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg shadow hover:shadow-md transition"
                 >
                   <div className="flex items-center gap-4">
                     <img
-                      src={other?.avatar || "https://i.pravatar.cc/100"}
-                      alt={other?.name}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-pink-400"
+                      src={otherUser?.avatar || "https://i.pravatar.cc/150"}
+                      alt={otherUser?.name}
+                      className="w-12 h-12 rounded-full border-2 border-pink-400 object-cover"
                     />
                     <div>
-                      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                        {other?.name || "Usuario"}
+                      <h2 className="font-semibold text-gray-800 dark:text-white">
+                        {otherUser?.name || "Usuario"}
                       </h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {other?.email}
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Última actualización:{" "}
+                        {new Date(chat.updatedAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
@@ -65,7 +66,7 @@ export default function ChatPage() {
                     to={`/chat/${chat._id}`}
                     className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition"
                   >
-                    Abrir chat
+                    Abrir chat →
                   </Link>
                 </div>
               );
