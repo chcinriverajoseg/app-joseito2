@@ -1,75 +1,57 @@
-// src/pages/MatchesPage.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import api from "@/api/axios";
-import Navbar from "@/ui/Navbar";
+import { useUserContext } from "@/context/UserContext";
 
 export default function MatchesPage() {
+  const { token } = useUserContext();
   const [matches, setMatches] = useState([]);
   const navigate = useNavigate();
 
-  const fetchMatches = async () => {
-    try {
-      const { data } = await api.get("/users/matches");
-      setMatches(data);
-    } catch (err) {
-      console.error("❌ Error cargando matches:", err);
-    }
-  };
-
-  const handleStartChat = async (matchId) => {
-    try {
-      const { data } = await api.post("/chats", { userId: matchId });
-      navigate(`/chat/${data._id}`); // redirige al chatRoom creado
-    } catch (err) {
-      console.error("❌ Error creando chat:", err);
-    }
-  };
-
   useEffect(() => {
-    fetchMatches();
-  }, []);
+    const load = async () => {
+      try {
+        const res = await axios.get("http://localhost:4000/api/users/matches", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMatches(res.data);
+      } catch {
+        setMatches([]);
+      }
+    };
+
+    load();
+  }, [token]);
+
+  const goToChat = (id) => {
+    navigate(`/chat/${id}`);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 to-purple-100 dark:from-gray-900 dark:to-gray-800">
-      <Navbar />
-      <div className="flex-1 max-w-4xl mx-auto w-full p-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-          🔥 Tus Matches
-        </h1>
+    <div className="p-6 max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-center">Tus matches 💘</h1>
 
-        {matches.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-400 text-center">
-            Aún no tienes matches. ¡Explora y da algunos likes! ❤️
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {matches.map((match) => (
-              <div
-                key={match._id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex flex-col items-center text-center hover:shadow-lg transition"
-              >
-                <img
-                  src={match.avatar || "https://i.pravatar.cc/150"}
-                  alt={match.name}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-pink-300 dark:border-pink-500 mb-3"
-                />
-                <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-                  {match.name}
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  {match.bio || "Sin descripción aún..."}
-                </p>
-                <button
-                  onClick={() => handleStartChat(match._id)}
-                  className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition"
-                >
-                  💬 Chatear
-                </button>
-              </div>
-            ))}
+      {matches.length === 0 && <p className="text-center">No tienes matches aún</p>}
+
+      <div className="space-y-4">
+        {matches.map((user) => (
+          <div
+            key={user._id}
+            className="p-4 bg-white dark:bg-gray-900 shadow rounded-xl flex justify-between items-center"
+          >
+            <div>
+              <p className="font-semibold">{user.name}</p>
+              <p className="text-gray-500 text-sm">{user.email}</p>
+            </div>
+
+            <button
+              onClick={() => goToChat(user._id)}
+              className="bg-blue-500 text-white px-3 py-1 rounded-xl hover:bg-blue-600 transition"
+            >
+              💬 Chat
+            </button>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

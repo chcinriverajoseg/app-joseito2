@@ -1,102 +1,79 @@
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
 
-/**
- * Crear chat entre dos usuarios (solo si existe un match)
- */
+// Crear chat entre usuarios (si no existe)
 export const createChat = async (req, res) => {
   try {
-    const { userId } = req.body; // receptor
-    const me = req.user._id;
+    const { userId } = req.body;
 
-    if (!userId) return res.status(400).json({ message: "Falta userId" });
+    if (!userId) return res.status(400).json({ message: "userId necesario" });
 
-    // Verificar si ya existe chat
+    // Buscar chat previo
     let chat = await Chat.findOne({
-      users: { $all: [me, userId] },
+      users: { $all: [req.user._id, userId] },
     });
 
+    // Si no existe se crea
     if (!chat) {
-      chat = await Chat.create({ users: [me, userId] });
+      chat = await Chat.create({ users: [req.user._id, userId] });
     }
 
-    res.status(201).json(chat); // mejor devolver 201 Created
+    res.json(chat);
   } catch (err) {
-    console.error("❌ Error createChat:", err);
-    res.status(500).json({ message: "Error al crear chat" });
+    console.error("Error crear chat", err);
+    res.status(500).json({ message: "Error crear chat" });
   }
 };
 
-/**
- * Obtener chats del usuario autenticado
- */
+// Obtener chats del usuario
 export const getChats = async (req, res) => {
   try {
-    const me = req.user._id;
-
-    const chats = await Chat.find({ users: me })
-      .populate("users", "_id name email avatar")
-      .sort({ updatedAt: -1 });
+    const chats = await Chat.find({ users: req.user._id }).populate(
+      "users",
+      "name email"
+    );
 
     res.json(chats);
   } catch (err) {
-    console.error("❌ Error getChats:", err);
-    res.status(500).json({ message: "Error al obtener chats" });
+    console.error("Error obtener chats", err);
+    res.status(500).json({ message: "Error obtener chats" });
   }
 };
 
-/**
- * Enviar mensaje en un chat
- */
+// Enviar mensaje a un chat
 export const sendMessage = async (req, res) => {
   try {
     const { chatId } = req.params;
     const { text } = req.body;
-    const me = req.user._id;
 
-    // ⚠️ Validar que el chat exista
-    const chat = await Chat.findById(chatId);
-    if (!chat) {
-      return res.status(404).json({ message: "Chat no encontrado" });
-    }
+    if (!text) return res.status(400).json({ message: "Texto requerido" });
 
     const message = await Message.create({
       chat: chatId,
-      author: me,
+      author: req.user._id,
       text,
     });
 
-    // Actualizar timestamp del chat
-    chat.updatedAt = new Date();
-    await chat.save();
-
-    res.status(201).json(message);
+    res.json(message);
   } catch (err) {
-    console.error("❌ Error sendMessage:", err);
-    res.status(500).json({ message: "Error al enviar mensaje" });
+    console.error("Error enviar mensaje", err);
+    res.status(500).json({ message: "Error enviar mensaje" });
   }
 };
 
-/**
- * Obtener mensajes de un chat
- */
+// Obtener mensajes
 export const getMessages = async (req, res) => {
   try {
-    const { chatId } = req.params;
-
-    // ⚠️ Validar que el chat exista
-    const chat = await Chat.findById(chatId);
-    if (!chat) {
-      return res.status(404).json({ message: "Chat no encontrado" });
-    }
-
-    const messages = await Message.find({ chat: chatId })
-      .populate("author", "_id name email")
-      .sort({ createdAt: 1 });
+    const messages = await Message.find({ chat: req.params.chatId }).populate(
+      "author",
+      "name email"
+    );
 
     res.json(messages);
   } catch (err) {
-    console.error("❌ Error getMessages:", err);
-    res.status(500).json({ message: "Error al obtener mensajes" });
+    console.error("Error obtener mensajes", err);
+    res.status(500).json({ message: "Error obtener mensajes" });
   }
 };
+
+

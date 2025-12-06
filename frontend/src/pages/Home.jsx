@@ -1,12 +1,12 @@
 // src/pages/Home.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import Navbar from "@/ui/Navbar";
+
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 to-purple-200 dark:from-gray-900 dark:to-gray-800 flex flex-col">
-      <Navbar />
+      
       <section className="flex flex-col flex-1 items-center justify-center text-center px-6 py-12">
         {/* Hero */}
         <h1 className="text-5xl sm:text-6xl font-extrabold text-pink-600 dark:text-pink-400 drop-shadow-lg mb-6">

@@ -1,4 +1,4 @@
-// src/api/axios.js
+/*// src/api/axios.js
 import axios from "axios";
 
 const api = axios.create({
@@ -35,3 +35,14 @@ api.interceptors.response.use(
 );
 
 export default api;
+*/
+
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://localhost:4000/api",   // ← ASEGÚRATE QUE ESTE ES TU BACKEND
+  withCredentials: true,
+});
+
+export default api;
+

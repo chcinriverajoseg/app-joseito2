@@ -1,62 +1,83 @@
-// src/pages/ExplorePage.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "@/api/axios";
-import { useUser } from "@/context/UserContext";
-import Navbar from "@/ui/Navbar";
+import Card from "@/ui/Card";
+import Button from "@/ui/Button";
+import { useUserContext } from "@/context/UserContext";
 
 export default function ExplorePage() {
-  const { user } = useUser();
-  const [users, setUsers] = useState([]);
+  const { token } = useUserContext();
+  const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const loadProfiles = async () => {
       try {
-        const { data } = await api.get("/users");
-        setUsers(data.filter((u) => u._id !== user._id));
+        const res = await api.get("/users/explore", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProfiles(res.data);
       } catch (err) {
-        console.error("Error cargando usuarios:", err);
+        console.error("Error cargando perfiles:", err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchUsers();
-  }, [user]);
 
-  const handleLike = async (id) => {
+    loadProfiles();
+  }, [token]);
+
+  const sendLike = async (id) => {
     try {
-      await api.post(`/users/${id}/like`);
-      alert("Like enviado ❤️");
+      await api.post(`/users/like/${id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setProfiles(profiles.filter((p) => p._id !== id));
     } catch (err) {
-      console.error("Error al dar like:", err);
+      console.error("Error dando like:", err);
     }
   };
 
+  const skip = (id) => {
+    setProfiles(profiles.filter((p) => p._id !== id));
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-100 dark:from-gray-900 dark:to-gray-800">
-      <Navbar />
-      <div className="max-w-5xl mx-auto p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {users.map((u) => (
-          <div
-            key={u._id}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 flex flex-col items-center text-center 
-                       transform transition duration-300 hover:scale-105 hover:shadow-xl"
-          >
-            <img
-              src={u.avatar || "https://i.pravatar.cc/150"}
-              alt={u.name}
-              className="w-24 h-24 rounded-full object-cover mb-3 border-4 border-pink-200 dark:border-pink-500"
-            />
-            <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
-              {u.name}
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-              {u.bio || "Sin biografía aún..."}
-            </p>
-            <button
-              onClick={() => handleLike(u._id)}
-              className="px-4 py-2 rounded-lg bg-pink-600 text-white hover:bg-pink-700 transition"
-            >
-              ❤️ Like
-            </button>
-          </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 px-4">
+      <h1 className="text-3xl font-bold text-center mb-6">Explorar 💘</h1>
+
+      {loading && <p className="text-center">Cargando perfiles...</p>}
+
+      {!loading && profiles.length === 0 && (
+        <p className="text-center">No hay más perfiles por ahora 😅</p>
+      )}
+
+      <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
+        {profiles.map((p) => (
+          <Card key={p._id} className="p-6 space-y-4">
+            <div className="w-20 h-20 mx-auto bg-indigo-500 text-white rounded-full flex items-center justify-center text-3xl font-bold shadow-lg">
+              {p.name?.charAt(0).toUpperCase()}
+            </div>
+
+            <h2 className="text-xl text-center font-bold">{p.name}</h2>
+            <p className="text-center text-gray-500">{p.bio || "Sin descripción"}</p>
+
+            <div className="flex gap-4 mt-4">
+              <Button
+                className="w-1/2 bg-gray-400 hover:bg-gray-500"
+                onClick={() => skip(p._id)}
+              >
+                ❌ Skip
+              </Button>
+
+              <Button
+                className="w-1/2 bg-pink-500 hover:bg-pink-600"
+                onClick={() => sendLike(p._id)}
+              >
+                💖 Like
+              </Button>
+            </div>
+          </Card>
         ))}
       </div>
     </div>

@@ -1,23 +1,30 @@
-// backend/routes/userRoutes.js
-import { Router } from "express";
-import { getUserProfile, updateUser, likeUser, getMatches, getAllUsers } from "../controllers/userController.js";
-import auth from "../middleware/auth.js";
+import express from "express";
+import {
+  getProfile,
+  updateProfile,
+  getExploreUsers,
+  sendLike,
+  getMatches
+} from "../controllers/userController.js";
 
-const router = Router();
+import authMiddleware from "../middleware/authMiddleware.js";
 
-// Listar usuarios
-router.get("/users", auth, getAllUsers);
+const router = express.Router();
 
-// Perfil autenticado
-router.get("/users/me", auth, getUserProfile);
+// GET /api/users/me
+router.get("/me", authMiddleware, getProfile);
 
-// Actualizar perfil
-router.put("/users/:id", auth, updateUser);
+// PUT /api/users/update
+router.put("/update", authMiddleware, updateProfile);
 
-// Dar like
-router.post("/users/:id/like", auth, likeUser);
+// GET /api/users/explore
+router.get("/explore", authMiddleware, getExploreUsers);
 
-// Ver matches
-router.get("/users/matches", auth, getMatches);
+// PUT /api/users/like/:id
+router.put("/like/:id", authMiddleware, sendLike);
+
+// GET /api/users/matches
+router.get("/matches", authMiddleware, getMatches);
 
 export default router;
+

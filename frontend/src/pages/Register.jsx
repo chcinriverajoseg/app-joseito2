@@ -1,140 +1,17 @@
-/*import React, { useState } from "react";
+import { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "@/context/useUser";
-import Input from "@/ui/Input";
-import Button from "@/ui/Button";
-import axios from "@/api/axios";
 
-const Register = () => {
-  const { setUser } = useUser();
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("/users/register", { name, email, password });
-      setUser(res.data.user);
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Error register:", error);
-      alert("Error al registrarse");
-    }
-  };
-
-  return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">Registro</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          type="text"
-          placeholder="Nombre"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button type="submit">Registrarse</Button>
-      </form>
-    </div>
-  );
-};
-
-export default Register;*/
-
-
-
-/*import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "@/api/axios";
-import Card from "@/ui/Card";
-import Input from "@/ui/Input";
-import Button from "@/ui/Button";
-import ErrorMessage from "@/ui/ErrorMessage";
-import Navbar from "@/ui/Navbar";
+const API = "http://localhost:4000/api/users";
 
 export default function Register() {
-  const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    interests: "",
+  });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    try {
-      const { data } = await api.post("/users/register", form);
-      localStorage.setItem("user", JSON.stringify(data));
-      navigate("/explore");
-    } catch (err) {
-      setError(err.response?.data?.message || "Error al registrarse");
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <Navbar />
-      <div className="max-w-md mx-auto p-6">
-        <Card>
-          <h2 className="text-xl font-bold mb-4">Crear cuenta</h2>
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Nombre"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-            />
-            <Input
-              label="Email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-            <Input
-              label="Contraseña"
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-            <Button type="submit" className="w-full">
-              Registrarse
-            </Button>
-          </form>
-        </Card>
-      </div>
-    </div>
-  );
-}*/
-
-// src/pages/Register.jsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "@/api/axios";
-
-export default function Register() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -142,53 +19,76 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Registro disparado ✔");
+
+    let formattedInterests =
+      form.interests.split(",").map((i) => i.trim());
+
     try {
-      await api.post("/users/register", form);
+      const res = await axios.post(`${API}/register`, {
+        ...form,
+        interests: formattedInterests,
+      });
+
+      console.log("Registrado:", res.data);
       navigate("/login");
-    } catch (err) {
-      setError(err.response?.data?.message || "Error en registro");
+    } catch (error) {
+      console.error("Error Registro:", error.response?.data || error.message);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-200 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <form
         onSubmit={handleSubmit}
-        className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg w-full max-w-md"
+        className="bg-white p-6 rounded-lg shadow-lg w-80"
       >
-        <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
-          Crear cuenta
-        </h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <h2 className="text-xl font-bold mb-4 text-center">Registro</h2>
+
         <input
-          type="text"
           name="name"
           placeholder="Nombre"
+          className="w-full p-2 border rounded mb-3"
           value={form.name}
           onChange={handleChange}
-          className="w-full mb-3 px-4 py-2 rounded-lg border focus:ring focus:outline-none"
+          required
         />
+
         <input
           type="email"
           name="email"
           placeholder="Correo"
+          className="w-full p-2 border rounded mb-3"
           value={form.email}
           onChange={handleChange}
-          className="w-full mb-3 px-4 py-2 rounded-lg border focus:ring focus:outline-none"
+          required
         />
+
         <input
           type="password"
           name="password"
           placeholder="Contraseña"
+          className="w-full p-2 border rounded mb-3"
           value={form.password}
           onChange={handleChange}
-          className="w-full mb-3 px-4 py-2 rounded-lg border focus:ring focus:outline-none"
+          required
         />
-        <button className="w-full bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700">
-          Registrarse
+
+        <input
+          name="interests"
+          placeholder="Intereses (separados por coma)"
+          className="w-full p-2 border rounded mb-3"
+          value={form.interests}
+          onChange={handleChange}
+        />
+
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white py-2 rounded"
+        >
+          Registrar
         </button>
       </form>
     </div>
   );
 }
-

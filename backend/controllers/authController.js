@@ -1,30 +1,18 @@
-// backend/controllers/authController.js
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-// Generar token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-};
+// Generar Token
+const generateToken = (id) =>
+  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-// ✅ Registro
-export const register = async (req, res) => {
+export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Validar campos
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Todos los campos son obligatorios" });
-    }
-
-    // Verificar si el usuario existe
     const exists = await User.findOne({ email });
-    if (exists) {
-      return res.status(400).json({ message: "El email ya está registrado" });
-    }
+    if (exists) return res.status(400).json({ message: "Email ya registrado" });
 
-    // Encriptar contraseña
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -34,38 +22,33 @@ export const register = async (req, res) => {
     });
 
     res.status(201).json({
-      user: { _id: user._id, name: user.name, email: user.email },
+      message: "Usuario creado",
+      user,
       token: generateToken(user._id),
     });
   } catch (err) {
-    console.error("❌ Error en registro:", err);
-    res.status(500).json({ message: "Error en el registro" });
+    console.error("❌ Error registro:", err);
+    res.status(500).json({ message: "Error en servidor" });
   }
 };
 
-// ✅ Login
-export const login = async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Buscar usuario
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "Credenciales inválidas" });
-    }
+    if (!user) return res.status(400).json({ message: "Credenciales inválidas" });
 
-    // Comparar contraseña
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(400).json({ message: "Credenciales inválidas" });
-    }
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(400).json({ message: "Credenciales inválidas" });
 
     res.json({
-      user: { _id: user._id, name: user.name, email: user.email },
+      message: "Login exitoso",
+      user,
       token: generateToken(user._id),
     });
   } catch (err) {
-    console.error("❌ Error en login:", err);
-    res.status(500).json({ message: "Error en el login" });
+    console.error("❌ Error login:", err);
+    res.status(500).json({ message: "Error servidor" });
   }
 };

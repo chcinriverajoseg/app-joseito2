@@ -1,10 +1,11 @@
-// src/main.jsx
+
+
 import React from "react";
 import ReactDOM from "react-dom/client";
+import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
-import { UserProvider } from "@/context/UserContext";
-import App from "./App";
-import "./index.css";
+import { UserProvider } from "./context/UserContext.jsx";
+import "./index.css";   // ← IMPORTANTE
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -14,4 +15,18 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </UserProvider>
     </BrowserRouter>
   </React.StrictMode>
-);
+); 
+
+/*import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import { BrowserRouter } from "react-router-dom";
+import { UserProvider } from "@/context/UserContext";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <BrowserRouter>
+    <UserProvider>
+      <App />
+    </UserProvider>
+  </BrowserRouter>
+);*/

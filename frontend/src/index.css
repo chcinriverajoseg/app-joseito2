@@ -57,3 +57,10 @@ h1, h2, h3 {
     background: linear-gradient(to bottom right, #0f172a, #1e293b);
   }
 }
+
+
+.bg-chatbg {
+  background-image: url("https://i.ibb.co/NmjthWX/chat-bg.png");
+  background-repeat: repeat;
+  background-size: 300px;
+}
