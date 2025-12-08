@@ -17,18 +17,21 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: ["http://localhost:5173"], // <-- frontend permitido
+    origin: [
+      "http://localhost:5173",
+      "https://app-joseito2.onrender.com"  // <-- dominio de producción
+    ],
     credentials: true,
   })
 );
 
 app.use(morgan("dev"));
-app.use(express.json({ limit: "10mb" })); // proteccion de payload grande
+app.use(express.json({ limit: "10mb" }));
 
-// Verificar conexión Mongo antes de levantar el server
+// Conexión Mongo
 mongoose
   .connect(process.env.MONGO_URI, {
-    dbName: "app-joseito",  // puedes cambiarlo si quieres
+    dbName: "app-joseito",
   })
   .then(() => console.log("✅ MongoDB conectado"))
   .catch((err) => {
@@ -41,12 +44,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
 
-// Ruta test para confirmar API funcionando
+// Ruta test
 app.get("/", (req, res) => {
   res.json({ message: "🚀 API app-joseito funcionando" });
 });
 
-// Manejo global de errores
+// Error global
 app.use((err, req, res, next) => {
   console.error("🔥 ERROR:", err);
   res.status(500).json({
@@ -56,6 +59,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Arranque del servidor
+// Arranque servidor
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`🚀 API corriendo en http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 API corriendo en http://localhost:${PORT}`)
+);

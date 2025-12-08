@@ -2,7 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API = "http://localhost:4000/api/users";
+// 👉 URL correcta del backend
+const API = "http://localhost:4000/api/auth";
 
 export default function Register() {
   const [form, setForm] = useState({
