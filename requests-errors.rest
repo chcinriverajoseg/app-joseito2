@@ -1,0 +1,78 @@
+### 1️⃣ Registro usuario A (Joseito)
+POST http://127.0.0.1:4000/api/users/register
+Content-Type: application/json
+
+{
+  "name": "Joseito",
+  "email": "joseito@example.com",
+  "password": "123456"
+}
+
+### 2️⃣ Registro usuario B (Maria)
+POST http://127.0.0.1:4000/api/users/register
+Content-Type: application/json
+
+{
+  "name": "Maria",
+  "email": "maria@example.com",
+  "password": "123456"
+}
+
+### 3️⃣ Login usuario A
+# @name loginA
+POST http://127.0.0.1:4000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "joseito@example.com",
+  "password": "123456"
+}
+
+### 4️⃣ Login usuario B
+# @name loginB
+POST http://127.0.0.1:4000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "maria@example.com",
+  "password": "123456"
+}
+
+### 5️⃣ Usuario A da like a B
+POST http://127.0.0.1:4000/api/users/{{loginB.response.body.user._id}}/like
+Authorization: Bearer {{loginA.response.body.token}}
+
+### 6️⃣ Usuario B da like a A (match 🔥)
+POST http://127.0.0.1:4000/api/users/{{loginA.response.body.user._id}}/like
+Authorization: Bearer {{loginB.response.body.token}}
+
+### 7️⃣ Ver matches de usuario A
+GET http://127.0.0.1:4000/api/users/matches
+Authorization: Bearer {{loginA.response.body.token}}
+
+### 8️⃣ Crear chat entre A y B
+# @name chatAB
+POST http://127.0.0.1:4000/api/chats
+Content-Type: application/json
+Authorization: Bearer {{loginA.response.body.token}}
+
+{
+  "userId": "{{loginB.response.body.user._id}}"
+}
+
+### 9️⃣ Listar chats de usuario A
+GET http://127.0.0.1:4000/api/chats
+Authorization: Bearer {{loginA.response.body.token}}
+
+### 🔟 Enviar mensaje en el chat
+POST http://127.0.0.1:4000/api/chats/{{chatAB.response.body._id}}/messages
+Content-Type: application/json
+Authorization: Bearer {{loginA.response.body.token}}
+
+{
+  "text": "Hola María! 🚀"
+}
+
+### 1️⃣1️⃣ Obtener mensajes del chat
+GET http://127.0.0.1:4000/api/chats/{{chatAB.response.body._id}}/messages
+Authorization: Bearer {{loginA.response.body.token}}
