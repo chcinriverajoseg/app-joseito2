@@ -1,4 +1,3 @@
-
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
@@ -14,12 +13,13 @@ dotenv.config();
 
 const app = express();
 
-// Middlewares
+// 🔥 CORS va AQUÍ, justo después de const app = express()
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",
-      "https://app-joseito2.onrender.com"  // <-- dominio de producción
+      "http://localhost:5173",                                   // Localhost
+      "https://frontend-app-joseito.vercel.app",                 // Frontend producción
+      "https://frontend-app-joseito-git-main-jose-gregorios-projects.vercel.app" // Preview Vercel
     ],
     credentials: true,
   })
