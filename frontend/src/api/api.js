@@ -1,5 +1,5 @@
 // frontend/src/api/api.js
-import axios from 'axios';
+/*import axios from 'axios';
 
 const API = axios.create({
   baseURL: 'http://localhost:4000/api',
@@ -14,4 +14,14 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-export default API;
+export default API;*/
+
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
+});
+
+export default api;
+

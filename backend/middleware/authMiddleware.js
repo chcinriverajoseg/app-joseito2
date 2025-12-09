@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+/*import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 export default async function authMiddleware(req, res, next) {
@@ -21,4 +21,21 @@ export default async function authMiddleware(req, res, next) {
     console.error("⚠️ Error auth middleware", err);
     res.status(401).json({ message: "Token inválido" });
   }
+}*/
+
+import jwt from "jsonwebtoken";
+
+export default function authMiddleware(req, res, next) {
+  const token = req.cookies?.token;
+
+  if (!token) return res.status(401).json({ message: "No autorizado" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.id;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Token inválido" });
+  }
 }
+

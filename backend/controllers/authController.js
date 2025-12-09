@@ -1,8 +1,8 @@
+
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-// Generar Token
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
@@ -21,10 +21,18 @@ export const registerUser = async (req, res) => {
       password: hashed,
     });
 
+    const token = generateToken(user._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.status(201).json({
       message: "Usuario creado",
       user,
-      token: generateToken(user._id),
     });
   } catch (err) {
     console.error("❌ Error registro:", err);
@@ -42,10 +50,18 @@ export const loginUser = async (req, res) => {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(400).json({ message: "Credenciales inválidas" });
 
+    const token = generateToken(user._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.json({
       message: "Login exitoso",
       user,
-      token: generateToken(user._id),
     });
   } catch (err) {
     console.error("❌ Error login:", err);
