@@ -1,0 +1,57 @@
+### 1️⃣ Login Joseito
+# @name loginA
+POST http://127.0.0.1:4000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "joseito@example.com",
+  "password": "123456"
+}
+
+### 2️⃣ Login Maria
+# @name loginB
+POST http://127.0.0.1:4000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "maria@example.com",
+  "password": "123456"
+}
+
+### 3️⃣ Joseito da like a Maria
+POST http://127.0.0.1:4000/api/users/68ddd277297a5582a9a726c5/like
+Authorization: Bearer {{loginA.response.body.token}}
+
+### 4️⃣ Maria da like a Joseito
+POST http://127.0.0.1:4000/api/users/68ddd276297a5582a9a726c3/like
+Authorization: Bearer {{loginB.response.body.token}}
+
+### 5️⃣ Ver matches de Joseito
+GET http://127.0.0.1:4000/api/users/matches
+Authorization: Bearer {{loginA.response.body.token}}
+
+### 6️⃣ Crear chat (si no existe ya)
+POST http://127.0.0.1:4000/api/chats
+Content-Type: application/json
+Authorization: Bearer {{loginA.response.body.token}}
+
+{
+  "userId": "68ddd277297a5582a9a726c5"
+}
+
+### 7️⃣ Listar chats de Joseito
+GET http://127.0.0.1:4000/api/chats
+Authorization: Bearer {{loginA.response.body.token}}
+
+### 8️⃣ Enviar mensaje en el chat Joseito ↔ Maria
+POST http://127.0.0.1:4000/api/chats/68ddd277297a5582a9a726c9/messages
+Content-Type: application/json
+Authorization: Bearer {{loginA.response.body.token}}
+
+{
+  "text": "Hola María 🚀"
+}
+
+### 9️⃣ Obtener mensajes del chat Joseito ↔ Maria
+GET http://127.0.0.1:4000/api/chats/68ddd277297a5582a9a726c9/messages
+Authorization: Bearer {{loginA.response.body.token}}
