@@ -8,11 +8,12 @@ export default function Input({ label, className = "", ...props }) {
           {label}
         </label>
       )}
+
       <input
         {...props}
-        className={`px-3 py-2 rounded-lg border border-gray-300 
-          focus:ring-2 focus:ring-pink-500 focus:border-pink-500 
-          dark:bg-gray-800 dark:border-gray-600 dark:text-white 
+        className={`px-3 py-2 rounded-lg border border-gray-300
+          focus:ring-2 focus:ring-pink-500 focus:border-pink-500
+          dark:bg-gray-800 dark:border-gray-600 dark:text-white
           transition ${className}`}
       />
     </div>

@@ -1,6 +1,7 @@
 // src/pages/Users.jsx
 import React, { useEffect, useState } from 'react';
-import axios from '@/api/axios';
+import api from "@/api/axios";
+;
 import UserCard from '@/ui/userCard';
 import Loader from '@/ui/loader';
 import ErrorMessage from '@/ui/ErrorMessage';

@@ -1,39 +1,111 @@
 
 /* eslint-disable */
 
-import { createContext, useContext, useState } from "react";
+/*
+import { createContext, useContext, useEffect, useState } from "react";
 
-const UserContext = createContext();
+const UserContext = createContext(null);
 
-export function UserProvider({ children }) {
+export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const loginUser = (userData, authToken) => {
+  // 🔐 Login
+  const login = (userData, tokenData) => {
     setUser(userData);
-    setToken(authToken);
-    localStorage.setItem("token", authToken);
+    setToken(tokenData);
+
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", tokenData);
   };
 
-  const logoutUser = () => {
+  // 🚪 Logout
+  const logout = () => {
     setUser(null);
     setToken(null);
+
+    localStorage.removeItem("user");
     localStorage.removeItem("token");
   };
 
+  // ♻️ Restaurar sesión
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
+    }
+
+    setLoading(false);
+  }, []);
+
   return (
-    <UserContext.Provider value={{ user, token, loginUser, logoutUser }}>
+    <UserContext.Provider
+      value={{
+        user,
+        token,
+        login,
+        logout,
+        loading,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
-}
+};
 
-// Hook oficial
-export function useUserContext() {
+export const useUserContext = () => {
   return useContext(UserContext);
-}
+};*/
 
-// Alias para evitar errores donde pones useUser
-export function useUser() {
-  return useUserContext();
-}
+import { createContext, useContext, useEffect, useState } from "react";
+import api from "@/api/axios";
+
+const UserContext = createContext();
+
+export const UserProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // 🔐 Cargar usuario desde localStorage
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
+
+    if (token && savedUser) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setUser(JSON.parse(savedUser));
+    }
+
+    setLoading(false);
+  }, []);
+
+  // ✅ LOGIN
+  const login = (userData, token) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    setUser(userData);
+  };
+
+  // 🚪 LOGOUT
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    delete api.defaults.headers.common["Authorization"];
+    setUser(null);
+  };
+
+  return (
+    <UserContext.Provider value={{ user, login, logout, loading }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+export const useUserContext = () => useContext(UserContext);

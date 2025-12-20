@@ -1,25 +1,18 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { fileURLToPath } from "url";
-
-// Necesario para definir __dirname en módulos ESM (Vite usa ESM)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
-
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"), // 👈 Alias funciona
+      "@": path.resolve(__dirname, "./src"),
     },
   },
-
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:4000", // 👈 Tu backend Express
+        target: "http://localhost:4000",
         changeOrigin: true,
         secure: false,
       },

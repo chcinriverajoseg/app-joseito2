@@ -4,27 +4,17 @@ import {
   updateProfile,
   getExploreUsers,
   sendLike,
-  getMatches
+  getMatches,
 } from "../controllers/userController.js";
 
-import authMiddleware from "../middleware/authMiddleware.js";
+import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// GET /api/users/me
-router.get("/me", authMiddleware, getProfile);
-
-// PUT /api/users/update
-router.put("/update", authMiddleware, updateProfile);
-
-// GET /api/users/explore
-router.get("/explore", authMiddleware, getExploreUsers);
-
-// PUT /api/users/like/:id
-router.put("/like/:id", authMiddleware, sendLike);
-
-// GET /api/users/matches
-router.get("/matches", authMiddleware, getMatches);
+router.get("/me", protect, getProfile);
+router.put("/update", protect, updateProfile);
+router.get("/explore", protect, getExploreUsers);
+router.put("/like/:id", protect, sendLike);
+router.get("/matches", protect, getMatches);
 
 export default router;
-

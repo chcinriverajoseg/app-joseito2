@@ -1,79 +1,40 @@
-import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
 
-// Crear chat entre usuarios (si no existe)
-export const createChat = async (req, res) => {
+// 📥 Obtener historial del chat
+export const getChatMessages = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId } = req.params;
+    const myId = req.user._id;
 
-    if (!userId) return res.status(400).json({ message: "userId necesario" });
+    const messages = await Message.find({
+      $or: [
+        { sender: myId, receiver: userId },
+        { sender: userId, receiver: myId },
+      ],
+    }).sort({ createdAt: 1 });
 
-    // Buscar chat previo
-    let chat = await Chat.findOne({
-      users: { $all: [req.user._id, userId] },
-    });
-
-    // Si no existe se crea
-    if (!chat) {
-      chat = await Chat.create({ users: [req.user._id, userId] });
-    }
-
-    res.json(chat);
-  } catch (err) {
-    console.error("Error crear chat", err);
-    res.status(500).json({ message: "Error crear chat" });
+    res.json(messages);
+  } catch (error) {
+    console.error("❌ Error getChatMessages:", error.message);
+    res.status(500).json({ message: "Error al cargar mensajes" });
   }
 };
 
-// Obtener chats del usuario
-export const getChats = async (req, res) => {
-  try {
-    const chats = await Chat.find({ users: req.user._id }).populate(
-      "users",
-      "name email"
-    );
-
-    res.json(chats);
-  } catch (err) {
-    console.error("Error obtener chats", err);
-    res.status(500).json({ message: "Error obtener chats" });
-  }
-};
-
-// Enviar mensaje a un chat
+// 📤 Enviar mensaje
 export const sendMessage = async (req, res) => {
   try {
-    const { chatId } = req.params;
+    const { userId } = req.params;
     const { text } = req.body;
 
-    if (!text) return res.status(400).json({ message: "Texto requerido" });
-
     const message = await Message.create({
-      chat: chatId,
-      author: req.user._id,
+      sender: req.user._id,
+      receiver: userId,
       text,
     });
 
-    res.json(message);
-  } catch (err) {
-    console.error("Error enviar mensaje", err);
-    res.status(500).json({ message: "Error enviar mensaje" });
+    res.status(201).json(message);
+  } catch (error) {
+    console.error("❌ Error sendMessage:", error.message);
+    res.status(500).json({ message: "Error al enviar mensaje" });
   }
 };
-
-// Obtener mensajes
-export const getMessages = async (req, res) => {
-  try {
-    const messages = await Message.find({ chat: req.params.chatId }).populate(
-      "author",
-      "name email"
-    );
-
-    res.json(messages);
-  } catch (err) {
-    console.error("Error obtener mensajes", err);
-    res.status(500).json({ message: "Error obtener mensajes" });
-  }
-};
-
-

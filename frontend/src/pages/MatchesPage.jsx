@@ -1,58 +1,47 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { useNavigate } from "react-router-dom";
+import Button from "@/ui/Button";
 import { useUserContext } from "@/context/UserContext";
 
 export default function MatchesPage() {
-  const { token } = useUserContext();
   const [matches, setMatches] = useState([]);
   const navigate = useNavigate();
+  const { onlineUsers } = useUserContext();
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await axios.get("http://localhost:4000/api/users/matches", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setMatches(res.data);
-      } catch {
-        setMatches([]);
-      }
+    const loadMatches = async () => {
+      const res = await api.get("/api/users/matches");
+      setMatches(res.data);
     };
-
-    load();
-  }, [token]);
-
-  const goToChat = (id) => {
-    navigate(`/chat/${id}`);
-  };
+    loadMatches();
+  }, []);
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-center">Tus matches 💘</h1>
+    <div className="max-w-4xl mx-auto mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {matches.map((u) => (
+        <div
+          key={u._id}
+          className="bg-white rounded-xl shadow p-4 flex flex-col items-center"
+        >
+          <div className="relative w-24 h-24 rounded-full bg-pink-100 flex items-center justify-center text-3xl font-bold">
+            {u.name[0].toUpperCase()}
 
-      {matches.length === 0 && <p className="text-center">No tienes matches aún</p>}
-
-      <div className="space-y-4">
-        {matches.map((user) => (
-          <div
-            key={user._id}
-            className="p-4 bg-white dark:bg-gray-900 shadow rounded-xl flex justify-between items-center"
-          >
-            <div>
-              <p className="font-semibold">{user.name}</p>
-              <p className="text-gray-500 text-sm">{user.email}</p>
-            </div>
-
-            <button
-              onClick={() => goToChat(user._id)}
-              className="bg-blue-500 text-white px-3 py-1 rounded-xl hover:bg-blue-600 transition"
-            >
-              💬 Chat
-            </button>
+            {onlineUsers.includes(u._id) && (
+              <span className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 rounded-full" />
+            )}
           </div>
-        ))}
-      </div>
+
+          <h2 className="mt-3 font-semibold">{u.name}</h2>
+
+          <Button
+            className="mt-4 w-full"
+            onClick={() => navigate(`/chats/${u._id}`)}
+          >
+            💬 Chatear
+          </Button>
+        </div>
+      ))}
     </div>
   );
 }

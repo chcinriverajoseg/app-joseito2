@@ -1,5 +1,5 @@
-/*
-import User from "../models/User.js";
+
+/*import User from "../models/User.js";
 
 // Obtener perfil propio
 export const getProfile = async (req, res) => {
@@ -80,7 +80,7 @@ export const getMatches = async (req, res) => {
 
 import User from "../models/User.js";
 
-// Perfil propio
+// 👤 PERFIL
 export const getProfile = async (req, res) => {
   try {
     res.json(req.user);
@@ -89,17 +89,22 @@ export const getProfile = async (req, res) => {
   }
 };
 
-// Editar perfil
+// ✏️ ACTUALIZAR PERFIL
 export const updateProfile = async (req, res) => {
   try {
-    const updated = await User.findByIdAndUpdate(req.user._id, req.body, { new: true });
-    res.json(updated);
-  } catch {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      req.body,
+      { new: true }
+    ).select("-password");
+
+    res.json(updatedUser);
+  } catch (err) {
     res.status(500).json({ message: "Error update" });
   }
 };
 
-// Explorar usuarios (mostrar todos menos yo y los que ya di like)
+// 🔍 EXPLORAR USUARIOS
 export const getExploreUsers = async (req, res) => {
   try {
     const users = await User.find({
@@ -108,51 +113,57 @@ export const getExploreUsers = async (req, res) => {
     }).select("name email");
 
     res.json(users);
-  } catch {
+  } catch (err) {
     res.status(500).json({ message: "Error explore" });
   }
 };
 
-// Dar like y verificar si es match
+// ❤️ LIKE + MATCH
 export const sendLike = async (req, res) => {
   try {
     const targetId = req.params.id;
 
-    const target = await User.findById(targetId);
-    if (!target) return res.status(404).json({ message: "Usuario no existe" });
-
-    const sender = await User.findById(req.user._id);
-
-    // Guardar like
-    if (!sender.likes.includes(targetId)) {
-      sender.likes.push(targetId);
-      await sender.save();
+    const targetUser = await User.findById(targetId);
+    if (!targetUser) {
+      return res.status(404).json({ message: "Usuario no existe" });
     }
 
-    // Si target también me dio like → match
-    if (target.likes.includes(sender._id)) {
-      if (!sender.matches.includes(targetId)) sender.matches.push(targetId);
-      if (!target.matches.includes(sender._id)) target.matches.push(sender._id);
+    const currentUser = await User.findById(req.user._id);
 
-      await sender.save();
-      await target.save();
-
-      return res.json({ message: "Match 💘 generado", match: true });
+    if (!currentUser.likes.includes(targetId)) {
+      currentUser.likes.push(targetId);
+      await currentUser.save();
     }
 
-    res.json({ message: "Like enviado", match: false });
-  } catch {
+    // 💘 MATCH
+    if (targetUser.likes.includes(currentUser._id)) {
+      if (!currentUser.matches.includes(targetId)) {
+        currentUser.matches.push(targetId);
+      }
+      if (!targetUser.matches.includes(currentUser._id)) {
+        targetUser.matches.push(currentUser._id);
+      }
+
+      await currentUser.save();
+      await targetUser.save();
+
+      return res.json({ match: true, message: "Match generado 💘" });
+    }
+
+    res.json({ match: false, message: "Like enviado" });
+  } catch (err) {
     res.status(500).json({ message: "Error like" });
   }
 };
 
-// Obtener matches
+// 🤝 MATCHES
 export const getMatches = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate("matches", "name email");
+    const user = await User.findById(req.user._id)
+      .populate("matches", "name email");
+
     res.json(user.matches);
-  } catch {
+  } catch (err) {
     res.status(500).json({ message: "Error matches" });
   }
 };
-

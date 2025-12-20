@@ -1,62 +1,21 @@
-
-/*// backend/app.js
-import dotenv from "dotenv";
-dotenv.config();
-
 import express from "express";
 import cors from "cors";
-import mongoose from "mongoose";
-
-import authRoutes from "./routes/authRoutes.js";
-import chatRoutes from "./routes/chatRoutes.js";
-
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/appjoseito";
-
-try {
-  await mongoose.connect(MONGO_URI);
-  console.log("✅ MongoDB conectado:", MONGO_URI);
-} catch (err) {
-  console.error("❌ Error conectando a MongoDB:", err.message);
-  process.exit(1);
-}
+import morgan from "morgan";
 
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 app.use(express.json());
+app.use(morgan("dev"));
 
-app.use("/api", authRoutes);
-app.use("/api", chatRoutes);
+// rutas
+import userRoutes from "./routes/userRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
 
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
-
-export default app;
-*/
-
-// backend/app.js
-import dotenv from "dotenv";
-dotenv.config();
-
-import express from "express";
-import cors from "cors";
-import mongoose from "mongoose";
-
-import authRoutes from "./routes/authRoutes.js";
-import usersRoutes from "./routes/usersRoutes.js";
-import chatRoutes from "./routes/chatRoutes.js";
-
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/appjoseito";
-await mongoose.connect(MONGO_URI);
-console.log("✅ MongoDB conectado:", MONGO_URI);
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// Monta rutas
-app.use("/api", authRoutes);
-app.use("/api", usersRoutes);  // 👈 aquí
-app.use("/api", chatRoutes);
-
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+app.use("/api/users", userRoutes);
+app.use("/api/messages", messageRoutes);
 
 export default app;

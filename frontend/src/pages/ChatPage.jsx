@@ -1,55 +1,57 @@
-import { useEffect, useState } from "react";
-import api from "@/api/axios";
-import { useUserContext } from "@/context/UserContext";
-import ChatRoom from "./ChatRoom";
+import { Routes, Route } from "react-router-dom";
+import Home from "@/pages/Home";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import ExplorePage from "@/pages/ExplorePage";
+import MatchesPage from "@/pages/MatchesPage";
+import ProfilePage from "@/pages/ProfilePage";
+import ChatPage from "@/pages/ChatPage";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function ChatPage() {
-  const { user } = useUserContext();
-  const [matches, setMatches] = useState([]);
-  const [selectedChat, setSelectedChat] = useState(null);
-
-  useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        const res = await api.get(`/users/matches/${user._id}`);
-        setMatches(res.data.matches || []);
-      } catch (err) {
-        console.log("Error cargando matches", err);
-      }
-    };
-
-    fetchMatches();
-  }, []);
-
+export default function AppRoutes() {
   return (
-    <div className="grid grid-cols-3 gap-4 h-full">
-      {/* Sidebar */}
-      <div className="bg-white p-4 rounded-xl shadow h-full overflow-y-auto">
-        <h2 className="font-bold mb-4">Matches</h2>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        {matches.length === 0 && <p>No tienes matches aún.</p>}
+      {/* rutas protegidas */}
+      <Route
+        path="/explore"
+        element={
+          <ProtectedRoute>
+            <ExplorePage />
+          </ProtectedRoute>
+        }
+      />
 
-        {matches.map((m) => (
-          <button
-            key={m._id}
-            className="block w-full text-left p-2 rounded-lg hover:bg-gray-200"
-            onClick={() => setSelectedChat(m._id)}
-          >
-            ❤️ {m.name}
-          </button>
-        ))}
-      </div>
+      <Route
+        path="/matches"
+        element={
+          <ProtectedRoute>
+            <MatchesPage />
+          </ProtectedRoute>
+        }
+      />
 
-      {/* Chat right side (2 columns span) */}
-      <div className="col-span-2 bg-gray-50 p-4 rounded-xl shadow h-full">
-        {!selectedChat ? (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            Selecciona un match para chatear
-          </div>
-        ) : (
-          <ChatRoom roomId={selectedChat} />
-        )}
-      </div>
-    </div>
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 👉 CHAT INDIVIDUAL */}
+      <Route
+  path="/chats/:userId"
+  element={
+    <ProtectedRoute>
+      <ChatPage />
+    </ProtectedRoute>
+  }
+/>
+    </Routes>
   );
 }
